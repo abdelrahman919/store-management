@@ -4,6 +4,7 @@ namespace App\Services;
 use Carbon\Carbon;
 use App\Models\Shift;
 use Illuminate\Support\Facades\Auth;
+use InvalidArgumentException;
 
 class ShiftService{
     
@@ -17,7 +18,7 @@ class ShiftService{
         $shift = $this->getAuthUserActiveShift();
         // Check older for unclosed shifts
         if($shift){
-            return  'Older shift started at [' . $shift->start . '] was not closed and is now in use';
+            return  "Older shift started at [ $shift->start ] was not closed and is now in use";
         }
 
         $shift = new Shift();
@@ -32,11 +33,21 @@ class ShiftService{
         return $transactionsRev + $purchaseOrdersRev;
     }
 
-    public function close(float $safeMoney): string{
-        $shift = $this->getAuthUserActiveShift();
+    public function close(Shift $shift ,float $safeMoney): string{
+
+        if(!$shift){
+            throw new InvalidArgumentException("User has no open shifts, please start a shift first", 1);
+        }
+
         $totalRev = $this->calculateRevenue($shift);
         $difference = $safeMoney - $totalRev;
-        $username = $shift->user()->get()->name;
+
+        $shift->total_revenue = $totalRev;
+        $shift->difference = $difference;
+        $shift->end = Carbon::now();
+        $shift->save();
+
+        $username = $shift->user->name;
         return "
         Shift closed
         User: $username

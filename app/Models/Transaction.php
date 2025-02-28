@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\PaymentMethod;
+use App\Enums\TransactionDirection;
+use App\Models\Abstracts\Payable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,12 +12,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class Transaction extends Model
+class Transaction extends Model implements Payable
 {
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    protected $table = 'transactions';
 
 
     public function owner(): MorphTo
@@ -30,7 +34,7 @@ class Transaction extends Model
 
     public function items(): BelongsToMany
     {
-        return $this->belongsToMany(Item::class)
+        return $this->belongsToMany(Item::class, 'item_transaction', 'transaction_id', 'item_id')
             ->withPivot('quantity');
     }
 
@@ -42,9 +46,10 @@ class Transaction extends Model
         // Event listner to the create event "only triggers on create not update"
         // Automatically fills the type with modle class name when created
         static::creating(function ($model) {
-            if (empty($model->type)) {
-                $model->type = static::class;
-            }
+            $model->type = static::class;
+            // if (empty($model->type)) {
+            //     $model->type = static::class;
+            // }
         });
 
 
@@ -73,6 +78,25 @@ class Transaction extends Model
             throw new \InvalidArgumentException('Owner must be a Clinet or Supplier');
         }
     }
+
+    function getSignedValue(): float
+    {
+        return $this->final_price;
+    }
+
+    function hasItems(): bool
+    {
+        return $this->items()->exists();
+    }
+
+    function getDirection(): TransactionDirection
+    {
+        return $this->final_price < 0 ?
+        TransactionDirection::Outgoing :
+        TransactionDirection::Incoming ;
+    }
+
+    
 
 
 

@@ -12,6 +12,10 @@ class ValidationRulesHelper{
         return ['string', 'numeric', 'max_digits:9'];
     }
 
+    public static function requiredArray(){
+        return ['required', 'array', 'min:1'];
+    }
+
     // public function validName(){
     //     return ['string', 'max:255'];
     // }

@@ -1,9 +1,15 @@
 <?php
 namespace App\Models\abstracts;
 
-use App\Models\Transaction;
+use App\Enums\TransactionDirection;
+use App\Models\Abstracts\PersistableTransaction;
 
-abstract class OutgoingTransaction extends Transaction{
+abstract class OutgoingTransaction extends PersistableTransaction{
+
+    function getDirection(): TransactionDirection
+    {
+        return TransactionDirection::Outgoing;
+    }
 
 }
 

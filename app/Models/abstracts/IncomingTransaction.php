@@ -1,9 +1,18 @@
 <?php
-namespace App\Models\abstracts;
+namespace App\Models\Abstracts;
 
+use App\Enums\TransactionDirection;
 use App\Models\Transaction;
+use OpenApi\Examples\Polymorphism\Fl;
 
-abstract class InconmingTransaction extends Transaction{
+abstract class IncomingTransaction extends PersistableTransaction{
+    
+    function getDirection(): TransactionDirection{
+        return TransactionDirection::Incoming;
+    }
+
+
+
 
 }
 

@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\ValidationRulesHelper;
 use Illuminate\Foundation\Http\FormRequest;
-use ValidationRulesHelper;
+
 
 class UpdateSupplierRequest extends FormRequest
 {

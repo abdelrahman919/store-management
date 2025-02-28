@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Shift;
+use Illuminate\Http\Request;
+use App\Services\ShiftService;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreShiftRequest;
 use App\Http\Requests\UpdateShiftRequest;
-use App\Services\ShiftService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request as HttpRequest;
+
 
 class ShiftController extends BaseController
 {
@@ -39,8 +42,9 @@ class ShiftController extends BaseController
      */
     public function show(Shift $shift)
     {
-        $shift = Shift::with('transactions', 'pruchase_orders', 'user')->paginate(10);
-        return $this->success($shift);
+        // , 'pruchase_orders'
+        // $shift = Shift::with('transactions', 'user')->paginate(10);
+        return $this->success($shift->load('transactions', 'user', 'purchaseOrders'));
     }
 
     /**
@@ -64,8 +68,16 @@ class ShiftController extends BaseController
         return $this->success(null, $message);
     }
 
-    public function close(float $safeMoney){
-        $this->shiftService->close($safeMoney );
-    }
+    // public function close(float $safeMoney){
+    //     $this->shiftService->close($safeMoney );
+    // }
 
+    public function close(Request $req){
+        $req->validate([
+            'safeMoney'=>['required', 'numeric', 'min:0'],
+        ]);
+        $safeMoney =(float) $req['safeMoney'];
+        $shift = $this->shiftService->getAuthUserActiveShift();
+        return $this->shiftService->close($shift, $safeMoney);
+    }
 }
