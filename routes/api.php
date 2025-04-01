@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionController;
@@ -57,6 +58,17 @@ Route::middleware('auth:sanctum')->controller(TransactionController::class)->gro
     Route::apiResource('/transaction', TransactionController::class)->except('update', 'destroy');
 });
 
+
+Route::middleware('auth:sanctum')->controller(SettingsController::class)->group(function () {
+    Route::get('/settings', 'index');
+    Route::get('/settings/{key}', 'show');
+    Route::patch('/settings', 'update');
+});
+
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+
+

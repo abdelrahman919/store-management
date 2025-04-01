@@ -3,49 +3,45 @@
 namespace App\Http\Controllers;
 
 use App\Models\settings;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoresettingsRequest;
 use App\Http\Requests\UpdatesettingsRequest;
+use App\Services\SettingsService;
 
-class SettingsController extends Controller
+class SettingsController extends BaseController
 {
+    private SettingsService $settingService;
+
+    public function __construct(SettingsService $settingService)
+    {
+        $this->settingService = $settingService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoresettingsRequest $request)
-    {
-        //
+        return $this->success($this->settingService->getAllValues());
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(settings $settings)
+    public function show(string $key)
     {
-        //
+        $value = $this->settingService->getValue($key);
+        return $this->success([$key => $value]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatesettingsRequest $request, settings $settings)
+    public function update(UpdatesettingsRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $key = $validated['key'];
+        $value = $validated['value'];
+        $this->settingService->setValue($key, $value);
+        return $this->success([$key => $this->settingService->getValue($key)]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(settings $settings)
-    {
-        //
-    }
 }

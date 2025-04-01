@@ -10,20 +10,20 @@ interface SettingsServiceInterface
     /**
      * Retrieve the value of a certain key 
      * 
-     * @param SettingsKeys $key
+     * @param string $key
      * @param mixed $default  [offers alernative return value if the value is null]
      * @return mixed
      * 
      *  */
-    public function getValue(SettingsKeys $key, $default = null);
+    public function getValue(string $key, $default = null);
 
 
     /**
      * Set or update a setting by its key.
      *
-     * @param SettingsKeys $key
+     * @param string $key
      * @param mixed $value
      * @return void
      */
-    public function setValue(SettingsKeys $key, $value): void;
+    public function setValue(string $key, $value);
 }
